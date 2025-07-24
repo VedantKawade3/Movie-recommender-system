@@ -4,9 +4,10 @@ import requests
 st.title("Movie Recommender System 📽️")
 
 def fetch_poster(movie_id):
+    TMDB_API_KEY = st.secrets["tmdb"]["api_key"]
     try:
         response = requests.get(
-            f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=f55f007f6c77e150089719479da383f2&language=en-US",
+            f"https://api.themoviedb.org/3/movie/{movie_id}?api_key={TMDB_API_KEY}&language=en-US",
             timeout=5
         )
         response.raise_for_status()
