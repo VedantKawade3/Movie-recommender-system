@@ -2,10 +2,19 @@ import streamlit as st
 import pickle
 import requests
 st.title("Movie Recommender System 📽️")
+
 def fetch_poster(movie_id):
-    response = requests.get(f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=f55f007f6c77e150089719479da383f2&language=en-US")
-    data = response.json()
-    return "https://image.tmdb.org/t/p/w500/" + data['poster_path']
+    try:
+        response = requests.get(
+            f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=f55f007f6c77e150089719479da383f2&language=en-US",
+            timeout=5
+        )
+        response.raise_for_status()
+        data = response.json()
+        return f"https://image.tmdb.org/t/p/w500{data['poster_path']}"
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching poster: {e}")
+        return "https://tse3.mm.bing.net/th/id/OIP.IMYEa-ECkbVQ66EO1LCUDwHaHa?rs=1&pid=ImgDetMain&o=7&rm=3"
 
 def recommend(movie):
     movie_index = movies[movies['title'] == movie].index[0]
@@ -31,11 +40,14 @@ option = st.selectbox(
 
 if st.button("Recommend"):
     names, poster = recommend(option)
-    cols = st.beta_columns(5)
+    cols = st.columns(5)
     for i in range(5):
         with cols[i]:
             st.text(names[i])
-            st.image(poster[i])
+            if poster[i]:  # Show image only if valid
+                st.image(poster[i])
+            else:
+                st.image("https://tse3.mm.bing.net/th/id/OIP.IMYEa-ECkbVQ66EO1LCUDwHaHa?rs=1&pid=ImgDetMain&o=7&rm=3")
 
 
 st.markdown(
